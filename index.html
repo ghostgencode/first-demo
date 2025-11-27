@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!--DOCTYPE html>
 <html>
 <head>
     <script>
@@ -25,7 +25,7 @@ fetch(searchUrl)
 <h1>k Anar banaunu bha ni testo</h1>
 </body>
 
-</html>
+</html -->
 
 <!--html><head>
 </head><body>
@@ -47,3 +47,89 @@ var video = document.querySelector('video');
 })
 .catch(function(err) { console.log(err.name + ": " + err.message); })
 </script></html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camera + Speech to Text</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    video { width: 80%; max-width: 600px; border: 2px solid #444; border-radius: 6px; }
+    #transcript { 
+      margin-top: 20px; 
+      padding: 10px; 
+      font-size: 1.2em; 
+      border: 1px solid #aaa; 
+      min-height: 60px; 
+      width: 80%; 
+      display: inline-block; 
+      background: #f7f7f7;
+    }
+    button { padding: 10px 20px; font-size: 1em; margin-top: 15px; }
+  </style>
+</head>
+
+<body>
+  <h2>Camera Feed + Live Speech-to-Text</h2>
+
+  <video id="camera" autoplay playsinline></video>
+
+  <div id="transcript">Speech will appear here...</div>
+
+  <br />
+  <button id="startBtn">Start Speech Recognition</button>
+  <button id="stopBtn">Stop</button>
+
+  <script>
+    // ---- CAMERA SETUP ----
+    async function startCamera() {
+      const video = document.getElementById("camera");
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true
+        });
+        video.srcObject = stream;
+      } catch (err) {
+        console.error("Camera/Mic error:", err);
+      }
+    }
+
+    startCamera();
+
+    // ---- SPEECH TO TEXT ----
+    let recognition;
+    const transcriptBox = document.getElementById("transcript");
+
+    // Chrome uses webkitSpeechRecognition
+    if ("webkitSpeechRecognition" in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+
+      recognition.onresult = (event) => {
+        let text = "";
+        for (let i = 0; i < event.results.length; i++) {
+          text += event.results[i][0].transcript;
+        }
+        transcriptBox.textContent = text;
+      };
+
+      recognition.onerror = (e) => console.error("Speech recognition error:", e);
+    } else {
+      alert("Speech recognition is not supported in this browser.");
+    }
+
+    document.getElementById("startBtn").onclick = () => {
+      if (recognition) recognition.start();
+    };
+
+    document.getElementById("stopBtn").onclick = () => {
+      if (recognition) recognition.stop();
+    };
+  </script>
+</body>
+</html>
